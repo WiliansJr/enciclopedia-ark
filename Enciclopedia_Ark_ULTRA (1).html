@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitácora de Ark - by AurumX</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes glow {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(96, 165, 250, 0.3),
+                            0 0 40px rgba(96, 165, 250, 0.1);
+            }
+            50% { 
+                box-shadow: 0 0 30px rgba(96, 165, 250, 0.5),
+                            0 0 60px rgba(96, 165, 250, 0.2);
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        @keyframes particles {
+            0% {
+                opacity: 1;
+                transform: translateY(0) translateX(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) translateX(var(--tx));
+            }
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            color: #e2e8f0;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Fondo con imagen de selva */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://images.unsplash.com/photo-1511884642898-4c92249e20b6?w=1920&h=1080&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            z-index: -1;
+            filter: brightness(0.4) contrast(1.1);
+        }
+
+        /* Brillo ambiente */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.3) 100%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        header {
+            background: linear-gradient(135deg, 
+                rgba(10, 40, 20, 0.95) 0%,
+                rgba(20, 60, 35, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            padding: 3rem 0;
+            border-bottom: 3px solid rgba(60, 180, 100, 0.4);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+            animation: slideInDown 0.8s ease-out;
+            position: relative;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(60, 180, 100, 0.5), transparent);
+        }
+        
+        h1 {
+            font-size: 56px;
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 50%, #16a34a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            font-weight: 900;
+            letter-spacing: -2px;
+            text-shadow: 0 2px 20px rgba(74, 222, 128, 0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .author-credit {
+            font-size: 12px;
+            color: rgba(74, 222, 128, 0.6);
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 20px;
+            border-bottom: 2px solid rgba(60, 180, 100, 0.3);
+            padding-bottom: 0;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            border-bottom: 4px solid transparent;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            color: rgba(226, 232, 240, 0.7);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+
+        .tab-button::before {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0%;
+            height: 4px;
+            background: linear-gradient(90deg, #4ade80, #22c55e);
+            transition: width 0.4s ease;
+        }
+
+        .tab-button:hover {
+            color: #4ade80;
+            transform: translateY(-3px);
+        }
+
+        .tab-button:hover::before {
+            width: 100%;
+        }
+
+        .tab-button.active {
+            color: #4ade80;
+            text-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
+        }
+
+        .tab-button.active::before {
+            width: 100%;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 1.25rem 1rem 1.25rem 3.5rem;
+            border: 2px solid rgba(74, 222, 128, 0.3);
+            border-radius: 14px;
+            font-size: 15px;
+            background: rgba(10, 40, 20, 0.7);
+            color: #e2e8f0;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            backdrop-filter: blur(10px);
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .search-box input::placeholder {
+            color: rgba(100, 116, 139, 0.8);
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #4ade80;
+            background: rgba(10, 40, 20, 0.9);
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3),
+                        0 0 0 3px rgba(74, 222, 128, 0.2);
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 22px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        
+        button {
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        button:active::before {
+            left: 100%;
+        }
+        
+        .btn-add {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            color: #0f172a;
+            padding: 1.2rem 2.5rem;
+            white-space: nowrap;
+            box-shadow: 0 8px 25px rgba(74, 222, 128, 0.4),
+                        inset 0 1px 0 rgba(255,255,255,0.3);
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-add:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 35px rgba(74, 222, 128, 0.6),
+                        inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+
+        .btn-add:active {
+            transform: translateY(-1px);
+        }
+        
+        .categories {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+        
+        .btn-category {
+            padding: 0.8rem 1.5rem;
+            background: rgba(74, 222, 128, 0.1);
+            color: #cbd5e1;
+            border: 2px solid rgba(74, 222, 128, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .btn-category:hover {
+            background: rgba(74, 222, 128, 0.2);
+            border-color: rgba(74, 222, 128, 0.6);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 222, 128, 0.2);
+        }
+
+        .btn-category.active {
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.4) 0%, rgba(34, 197, 94, 0.4) 100%);
+            color: #4ade80;
+            border-color: #4ade80;
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
+            transform: scale(1.05);
+        }
+        
+        .form-section {
+            background: linear-gradient(135deg, 
+                rgba(10, 40, 20, 0.8) 0%,
+                rgba(15, 50, 30, 0.8) 100%);
+            padding: 2.5rem;
+            margin: 2rem 0;
+            border-radius: 18px;
+            border: 2px solid rgba(74, 222, 128, 0.3);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4),
+                        inset 0 1px 0 rgba(74, 222, 128, 0.2);
+            animation: slideInDown 0.6s ease-out;
+        }
+        
+        .form-section h2 {
+            font-size: 26px;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        .form-tip {
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%);
+            padding: 1.2rem;
+            border-radius: 12px;
+            font-size: 13px;
+            color: #bfdbfe;
+            margin-bottom: 1.5rem;
+            border-left: 5px solid #4ade80;
+            box-shadow: 0 5px 15px rgba(74, 222, 128, 0.1);
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        input, textarea, select {
+            padding: 1.2rem;
+            border: 2px solid rgba(74, 222, 128, 0.2);
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: inherit;
+            background: rgba(10, 40, 20, 0.5);
+            color: #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            backdrop-filter: blur(10px);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: rgba(100, 116, 139, 0.7);
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #4ade80;
+            background: rgba(10, 40, 20, 0.8);
+            box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2),
+                        inset 0 0 0 1px rgba(74, 222, 128, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .image-upload-section {
+            background: linear-gradient(135deg, 
+                rgba(74, 222, 128, 0.1) 0%,
+                rgba(59, 130, 246, 0.05) 100%);
+            border: 2px dashed rgba(74, 222, 128, 0.4);
+            border-radius: 14px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .image-upload-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 30%, rgba(74, 222, 128, 0.1) 50%, transparent 70%);
+            background-size: 200% 200%;
+            animation: shimmer 3s infinite;
+            pointer-events: none;
+        }
+
+        .image-upload-section:hover {
+            border-color: #4ade80;
+            background: linear-gradient(135deg, 
+                rgba(74, 222, 128, 0.2) 0%,
+                rgba(59, 130, 246, 0.1) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(74, 222, 128, 0.2);
+        }
+
+        .image-upload-input {
+            display: none;
+        }
+
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+            margin-top: 1rem;
+        }
+
+        .image-item {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            aspect-ratio: 1;
+            border: 2px solid rgba(74, 222, 128, 0.3);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .image-item:hover {
+            border-color: #4ade80;
+            transform: scale(1.08);
+            box-shadow: 0 8px 25px rgba(74, 222, 128, 0.3);
+        }
+
+        .image-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .btn-remove-image {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.9) 0%, rgba(220, 38, 38, 0.9) 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        .image-item:hover .btn-remove-image {
+            display: flex;
+        }
+
+        .btn-remove-image:hover {
+            transform: scale(1.2) rotate(90deg);
+        }
+        
+        .btn-save {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            color: #0f172a;
+            padding: 1.2rem 2rem;
+            box-shadow: 0 8px 25px rgba(74, 222, 128, 0.4),
+                        inset 0 1px 0 rgba(255,255,255,0.3);
+            font-weight: 800;
+        }
+        
+        .btn-save:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 35px rgba(74, 222, 128, 0.6),
+                        inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+        
+        .btn-cancel {
+            background: rgba(148, 163, 184, 0.1);
+            color: #cbd5e1;
+            border: 2px solid rgba(148, 163, 184, 0.3);
+            padding: 1.2rem 2rem;
+        }
+        
+        .btn-cancel:hover {
+            background: rgba(148, 163, 184, 0.2);
+            border-color: rgba(148, 163, 184, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .form-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 1.5rem;
+        }
+        
+        .form-buttons button {
+            flex: 1;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: linear-gradient(135deg, 
+                rgba(15, 50, 30, 0.7) 0%,
+                rgba(10, 40, 20, 0.7) 100%);
+            border: 2px solid rgba(74, 222, 128, 0.2);
+            border-radius: 18px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4),
+                        inset 0 1px 0 rgba(74, 222, 128, 0.1);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(74, 222, 128, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s;
+            z-index: 1;
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card:hover {
+            transform: translateY(-12px);
+            border-color: #4ade80;
+            box-shadow: 0 20px 50px rgba(74, 222, 128, 0.3),
+                        0 0 30px rgba(74, 222, 128, 0.2);
+        }
+
+        .card.selected {
+            border-color: #4ade80;
+            box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.5), 
+                        0 20px 50px rgba(74, 222, 128, 0.3);
+        }
+
+        .card-images-container {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+            position: relative;
+            overflow: hidden;
+            z-index: 2;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .card:hover .card-image {
+            transform: scale(1.1);
+        }
+
+        .card-image-counter {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(10, 10, 10, 0.7) 100%);
+            color: #4ade80;
+            padding: 0.6rem 0.9rem;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            z-index: 2;
+            position: relative;
+        }
+        
+        .card-name {
+            font-weight: 800;
+            font-size: 18px;
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        
+        .card-category {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            margin-bottom: 12px;
+        }
+        
+        .card-desc {
+            font-size: 14px;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+        
+        .empty {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+        }
+        
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 1.5rem;
+            opacity: 0.6;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .empty p {
+            font-size: 16px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, 
+                rgba(10, 40, 20, 0.98) 0%,
+                rgba(15, 50, 30, 0.98) 100%);
+            border-radius: 22px;
+            padding: 0;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            width: 100%;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6),
+                        0 0 60px rgba(74, 222, 128, 0.2);
+            border: 2px solid rgba(74, 222, 128, 0.3);
+            animation: slideInDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .modal-gallery {
+            position: relative;
+            width: 100%;
+            height: 380px;
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .gallery-nav {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .gallery-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 2px solid transparent;
+        }
+
+        .gallery-dot:hover {
+            background: rgba(74, 222, 128, 0.6);
+        }
+
+        .gallery-dot.active {
+            background: #4ade80;
+            transform: scale(1.3);
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.6);
+        }
+
+        .gallery-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.8) 0%, rgba(34, 197, 94, 0.8) 100%);
+            color: white;
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 10;
+            box-shadow: 0 6px 20px rgba(74, 222, 128, 0.4);
+            font-weight: 800;
+        }
+
+        .gallery-button:hover {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            transform: translateY(-50%) scale(1.15);
+            box-shadow: 0 10px 30px rgba(74, 222, 128, 0.6);
+        }
+
+        .gallery-prev {
+            left: 20px;
+        }
+
+        .gallery-next {
+            right: 20px;
+        }
+
+        .modal-header-content {
+            padding: 2.5rem;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-header h2 {
+            font-size: 32px;
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+            font-weight: 900;
+        }
+        
+        .modal-header p {
+            font-size: 14px;
+            color: #94a3b8;
+            margin: 12px 0 0 0;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-close {
+            background: linear-gradient(135deg, rgba(148, 163, 184, 0.2) 0%, rgba(100, 116, 139, 0.2) 100%);
+            border: none;
+            font-size: 32px;
+            cursor: pointer;
+            color: #94a3b8;
+            padding: 0;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-weight: 800;
+        }
+        
+        .btn-close:hover {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.3) 0%, rgba(220, 38, 38, 0.3) 100%);
+            color: #ef4444;
+            transform: rotate(90deg) scale(1.1);
+        }
+        
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding: 0 2.5rem 2.5rem;
+        }
+        
+        .modal-field {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-label {
+            font-size: 12px;
+            font-weight: 800;
+            color: #4ade80;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 10px;
+        }
+        
+        .modal-value {
+            font-size: 15px;
+            color: #cbd5e1;
+            line-height: 1.8;
+        }
+        
+        .btn-delete {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.2) 100%);
+            color: #fca5a5;
+            border: 2px solid rgba(239, 68, 68, 0.5);
+            margin: 1rem 2.5rem 2.5rem;
+            padding: 1.2rem;
+            width: calc(100% - 5rem);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.2);
+        }
+        
+        .btn-delete:hover {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.3) 0%, rgba(220, 38, 38, 0.3) 100%);
+            border-color: #ef4444;
+            color: #fca5a5;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 2rem;
+            margin-top: 0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(74, 222, 128, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, rgba(74, 222, 128, 0.5) 0%, rgba(34, 197, 94, 0.5) 100%);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, rgba(74, 222, 128, 0.7) 0%, rgba(34, 197, 94, 0.7) 100%);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>📚 Bitácora de Ark</h1>
+            <div class="author-credit">by AurumX</div>
+            
+            <div class="tabs">
+                <button class="tab-button active" onclick="switchTab('creatures')">🦖 Criaturas</button>
+                <button class="tab-button" onclick="switchTab('bases')">🏗️ Bases</button>
+                <button class="tab-button" onclick="switchTab('maps')">🗺️ Mapas</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- TAB 1: CRIATURAS -->
+    <div id="creatures-tab" class="tab-content active">
+        <div class="container">
+            <div class="controls">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="Buscar criaturas...">
+                </div>
+                <button class="btn-add" onclick="toggleForm('creature')">➕ Agregar Criatura</button>
+            </div>
+            
+            <div class="categories" id="categoriesContainer"></div>
+        </div>
+
+        <div id="formSection" class="form-section" style="display: none;">
+            <h2>➕ Agregar Nueva Criatura</h2>
+            <div class="form-tip">💡 TIP: Agrega imágenes locales de tu PC (JPG, PNG) o URLs. Puedes agregar múltiples fotos!</div>
+            <form class="form-group" id="creatureForm" onsubmit="addCreature(event)">
+                <input type="text" id="formName" placeholder="Nombre de la criatura" required>
+                
+                <div class="image-upload-section" onclick="document.getElementById('formCreatureImages').click()">
+                    <div style="font-size: 28px; margin-bottom: 8px; position: relative; z-index: 2;">📸</div>
+                    <div style="color: #cbd5e1; margin-bottom: 8px; position: relative; z-index: 2;">Haz clic para subir imágenes o arrastra aquí</div>
+                    <div style="font-size: 12px; color: #64748b; position: relative; z-index: 2;">JPG, PNG o URL de imagen</div>
+                    <input type="file" id="formCreatureImages" class="image-upload-input" multiple accept="image/*" onchange="handleImageUpload(event, 'creature')">
+                </div>
+                <div class="image-gallery" id="creatureImageGallery"></div>
+
+                <div class="form-row">
+                    <select id="formCategory">
+                        <option>Carnívoros</option>
+                        <option>Herbívoros</option>
+                        <option>Voladores</option>
+                        <option>Acuáticos</option>
+                        <option>Anfibios</option>
+                        <option>Insectos</option>
+                        <option>Épicos</option>
+                        <option>Otro</option>
+                    </select>
+                    <input type="text" id="formLevel" placeholder="Nivel recomendado">
+                </div>
+
+                <textarea id="formDescription" placeholder="Descripción general"></textarea>
+                
+                <div class="form-row">
+                    <input type="text" id="formDiet" placeholder="Dieta">
+                    <input type="text" id="formTamingFood" placeholder="Comida para domesticar">
+                </div>
+
+                <input type="text" id="formTamingMethod" placeholder="Método de domesticación">
+                <textarea id="formNotes" placeholder="Notas adicionales"></textarea>
+
+                <div class="form-buttons">
+                    <button type="submit" class="btn-save">✅ Guardar</button>
+                    <button type="button" class="btn-cancel" onclick="toggleForm('creature')">❌ Cancelar</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="grid" id="gridContainer"></div>
+        
+        <div id="emptyMessage" class="empty" style="display: none;">
+            <div class="empty-icon">🔍</div>
+            <p>No se encontraron criaturas</p>
+        </div>
+    </div>
+
+    <!-- TAB 2: BASES -->
+    <div id="bases-tab" class="tab-content">
+        <div class="container">
+            <h2 class="section-title">🏗️ Ubicaciones de Bases</h2>
+            <div class="controls">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchBases" placeholder="Buscar ubicaciones...">
+                </div>
+                <button class="btn-add" onclick="toggleForm('base')">➕ Agregar Base</button>
+            </div>
+        </div>
+
+        <div id="formSectionBases" class="form-section" style="display: none; margin: 0 20px;">
+            <h2>➕ Agregar Ubicación de Base</h2>
+            <div class="form-tip">💡 TIP: Sube imágenes de la ubicación desde tu PC</div>
+            <form class="form-group" id="baseForm" onsubmit="addBase(event)">
+                <input type="text" id="formBaseName" placeholder="Nombre de la ubicación" required>
+                
+                <div class="image-upload-section" onclick="document.getElementById('formBaseImages').click()">
+                    <div style="font-size: 28px; margin-bottom: 8px; position: relative; z-index: 2;">📸</div>
+                    <div style="color: #cbd5e1; margin-bottom: 8px; position: relative; z-index: 2;">Sube fotos del lugar</div>
+                    <input type="file" id="formBaseImages" class="image-upload-input" multiple accept="image/*" onchange="handleImageUpload(event, 'base')">
+                </div>
+                <div class="image-gallery" id="baseImageGallery"></div>
+
+                <div class="form-row">
+                    <select id="formBaseMap">
+                        <option>The Island</option>
+                        <option>The Center</option>
+                        <option>Ragnarok</option>
+                        <option>Aberration</option>
+                        <option>Extinction</option>
+                    </select>
+                    <select id="formBaseDifficulty">
+                        <option>Fácil 🟢</option>
+                        <option>Medio 🟡</option>
+                        <option>Difícil 🔴</option>
+                    </select>
+                </div>
+
+                <textarea id="formBaseDescription" placeholder="Descripción del lugar"></textarea>
+                <input type="text" id="formBaseCoordinates" placeholder="Coordenadas (ej: 45.5, 32.8)">
+                <textarea id="formBaseAdvantages" placeholder="Ventajas"></textarea>
+                <textarea id="formBaseDisadvantages" placeholder="Desventajas"></textarea>
+
+                <div class="form-buttons">
+                    <button type="submit" class="btn-save">✅ Guardar</button>
+                    <button type="button" class="btn-cancel" onclick="toggleForm('base')">❌ Cancelar</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="grid" id="basesGridContainer" style="margin: 2rem 20px;"></div>
+        
+        <div id="emptyBasesMessage" class="empty" style="display: none;">
+            <div class="empty-icon">🗺️</div>
+            <p>No hay ubicaciones guardadas</p>
+        </div>
+    </div>
+
+    <!-- TAB 3: MAPAS -->
+    <div id="maps-tab" class="tab-content">
+        <div class="container">
+            <h2 class="section-title">🗺️ Información de Mapas</h2>
+            <div class="controls">
+                <button class="btn-add" onclick="toggleForm('map')">➕ Agregar Mapa</button>
+            </div>
+        </div>
+
+        <div id="formSectionMaps" class="form-section" style="display: none; margin: 0 20px;">
+            <h2>➕ Agregar Mapa</h2>
+            <form class="form-group" id="mapForm" onsubmit="addMap(event)">
+                <input type="text" id="formMapName" placeholder="Nombre del mapa" required>
+                
+                <div class="image-upload-section" onclick="document.getElementById('formMapImages').click()">
+                    <div style="font-size: 28px; margin-bottom: 8px; position: relative; z-index: 2;">🗺️</div>
+                    <div style="color: #cbd5e1; margin-bottom: 8px; position: relative; z-index: 2;">Sube capturas del mapa</div>
+                    <input type="file" id="formMapImages" class="image-upload-input" multiple accept="image/*" onchange="handleImageUpload(event, 'map')">
+                </div>
+                <div class="image-gallery" id="mapImageGallery"></div>
+
+                <textarea id="formMapDescription" placeholder="Descripción general del mapa"></textarea>
+                <input type="text" id="formMapBiomas" placeholder="Biomas disponibles (separados por comas)">
+                <textarea id="formMapResources" placeholder="Recursos principales"></textarea>
+
+                <div class="form-buttons">
+                    <button type="submit" class="btn-save">✅ Guardar</button>
+                    <button type="button" class="btn-cancel" onclick="toggleForm('map')">❌ Cancelar</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="grid" id="mapsGridContainer" style="margin: 2rem 20px;"></div>
+        
+        <div id="emptyMapsMessage" class="empty" style="display: none;">
+            <div class="empty-icon">📍</div>
+            <p>No hay mapas guardados</p>
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-gallery">
+                <img class="modal-image" id="modalImage">
+                <button class="gallery-button gallery-prev" onclick="prevImage()">‹</button>
+                <button class="gallery-button gallery-next" onclick="nextImage()">›</button>
+                <div class="gallery-nav" id="galleryNav"></div>
+            </div>
+            <div class="modal-header-content">
+                <div class="modal-header">
+                    <div>
+                        <h2 id="modalName"></h2>
+                        <p id="modalSubtitle"></p>
+                    </div>
+                    <button class="btn-close" onclick="closeModal()">✕</button>
+                </div>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <button class="btn-delete" onclick="deleteSelected()">🗑️ Eliminar</button>
+        </div>
+    </div>
+
+    <script>
+        const CATEGORIES = ['Carnívoros', 'Herbívoros', 'Voladores', 'Acuáticos', 'Anfibios', 'Insectos', 'Épicos', 'Otro'];
+        const EMOJIS = {
+            'Carnívoros': '🦖',
+            'Herbívoros': '🌿',
+            'Voladores': '🦅',
+            'Acuáticos': '🐋',
+            'Anfibios': '🐸',
+            'Insectos': '🦗',
+            'Épicos': '⭐',
+            'Otro': '❓'
+        };
+
+        let creatures = [];
+        let bases = [];
+        let maps = [];
+        let selectedCategory = 'all';
+        let selectedCreatureId = null;
+        let selectedBaseId = null;
+        let selectedMapId = null;
+        let currentModal = null;
+        let currentImageIndex = 0;
+        let currentImages = [];
+
+        let tempImages = {
+            creature: [],
+            base: [],
+            map: []
+        };
+
+        // ===== MANEJO DE IMÁGENES =====
+        function handleImageUpload(event, type) {
+            const files = event.target.files;
+            for (let file of files) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const imageData = e.target.result;
+                    tempImages[type].push(imageData);
+                    renderImageGallery(type);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function renderImageGallery(type) {
+            const galleryId = type + 'ImageGallery';
+            const gallery = document.getElementById(galleryId);
+            
+            gallery.innerHTML = tempImages[type].map((img, idx) => `
+                <div class="image-item">
+                    <img src="${img}">
+                    <button type="button" class="btn-remove-image" onclick="removeImage('${type}', ${idx})">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function removeImage(type, index) {
+            tempImages[type].splice(index, 1);
+            renderImageGallery(type);
+        }
+
+        // ===== CARGAR DATOS =====
+        function loadData() {
+            const savedCreatures = localStorage.getItem('arkCreatures');
+            const savedBases = localStorage.getItem('arkBases');
+            const savedMaps = localStorage.getItem('arkMaps');
+
+            if (savedCreatures) {
+                creatures = JSON.parse(savedCreatures);
+            } else {
+                creatures = [
+                    {
+                        id: 1,
+                        name: 'Tyrannosaurus Rex',
+                        images: [],
+                        category: 'Carnívoros',
+                        description: 'El depredador dominante de la isla. Extremadamente agresivo y peligroso.',
+                        diet: 'Carnívoro',
+                        level: '50-80',
+                        tamingFood: 'Raw Meat, Regular Kibble',
+                        tamingMethod: 'Inconsciente con tranquilizantes',
+                        notes: 'Excelente para combate. Requiere mucha comida.'
+                    }
+                ];
+                saveData();
+            }
+
+            if (savedBases) {
+                bases = JSON.parse(savedBases);
+            } else {
+                bases = [];
+                saveData();
+            }
+
+            if (savedMaps) {
+                maps = JSON.parse(savedMaps);
+            } else {
+                maps = [];
+                saveData();
+            }
+
+            renderCategories();
+            renderCreatures();
+            renderBases();
+            renderMaps();
+        }
+
+        function saveData() {
+            localStorage.setItem('arkCreatures', JSON.stringify(creatures));
+            localStorage.setItem('arkBases', JSON.stringify(bases));
+            localStorage.setItem('arkMaps', JSON.stringify(maps));
+        }
+
+        // ===== TABS =====
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // ===== CRIATURAS =====
+        function renderCategories() {
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = '';
+            
+            const btnAll = document.createElement('button');
+            btnAll.className = 'btn-category ' + (selectedCategory === 'all' ? 'active' : '');
+            btnAll.textContent = 'Todas';
+            btnAll.onclick = () => {
+                selectedCategory = 'all';
+                renderCategories();
+                renderCreatures();
+            };
+            container.appendChild(btnAll);
+
+            CATEGORIES.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-category ' + (selectedCategory === cat ? 'active' : '');
+                btn.textContent = EMOJIS[cat] + ' ' + cat;
+                btn.onclick = () => {
+                    selectedCategory = cat;
+                    renderCategories();
+                    renderCreatures();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function renderCreatures() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = creatures.filter(c => {
+                const matchSearch = c.name.toLowerCase().includes(search);
+                const matchCat = selectedCategory === 'all' || c.category === selectedCategory;
+                return matchSearch && matchCat;
+            });
+
+            const grid = document.getElementById('gridContainer');
+            const empty = document.getElementById('emptyMessage');
+
+            if (filtered.length === 0) {
+                grid.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            empty.style.display = 'none';
+            
+            grid.innerHTML = filtered.map(c => `
+                <div class="card ${selectedCreatureId === c.id ? 'selected' : ''}" onclick="selectCreature(${c.id})">
+                    <div class="card-images-container">
+                        ${c.images && c.images.length > 0 ? 
+                            `<img src="${c.images[0]}" class="card-image">
+                             <div class="card-image-counter">📸 ${c.images.length}</div>` : 
+                            `<div class="card-image no-image" style="font-size: 100px; display: flex; align-items: center; justify-content: center;">${EMOJIS[c.category]}</div>`
+                        }
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">${c.name}</div>
+                        <div class="card-category">${c.category}</div>
+                        <div class="card-desc">${c.description.substring(0, 80)}...</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectCreature(id) {
+            const c = creatures.find(x => x.id === id);
+            if (!c) return;
+            
+            selectedCreatureId = id;
+            currentModal = 'creature';
+            currentImages = c.images || [];
+            currentImageIndex = 0;
+            
+            showModalImage();
+            
+            document.getElementById('modalName').textContent = `${EMOJIS[c.category]} ${c.name}`;
+            document.getElementById('modalSubtitle').textContent = c.category;
+            
+            const body = document.getElementById('modalBody');
+            let html = '';
+            
+            if (c.description) {
+                html += `<div class="modal-field">
+                    <div class="modal-label">📝 Descripción</div>
+                    <div class="modal-value">${c.description}</div>
+                </div>`;
+            }
+            if (c.diet) {
+                html += `<div class="modal-field">
+                    <div class="modal-label">🍖 Dieta</div>
+                    <div class="modal-value">${c.diet}</div>
+                </div>`;
+            }
+            if (c.level) {
+                html += `<div class="modal-field">
+                    <div class="modal-label">⚔️ Nivel</div>
+                    <div class="modal-value">${c.level}</div>
+                </div>`;
+            }
+            if (c.tamingFood) {
+                html += `<div class="modal-field">
+                    <div class="modal-label">🍗 Comida</div>
+                    <div class="modal-value">${c.tamingFood}</div>
+                </div>`;
+            }
+            if (c.tamingMethod) {
+                html += `<div class="modal-field">
+                    <div class="modal-label">🎯 Método</div>
+                    <div class="modal-value">${c.tamingMethod}</div>
+                </div>`;
+            }
+            if (c.notes) {
+                html += `<div class="modal-field">
+                    <div class="modal-label">💬 Notas</div>
+                    <div class="modal-value">${c.notes}</div>
+                </div>`;
+            }
+            
+            body.innerHTML = html;
+            renderGalleryNav();
+            document.getElementById('modal').classList.add('active');
+            renderCreatures();
+        }
+
+        function addCreature(e) {
+            e.preventDefault();
+            const name = document.getElementById('formName').value.trim();
+            if (!name) {
+                alert('Por favor ingresa un nombre');
+                return;
+            }
+
+            const creature = {
+                id: Date.now(),
+                name: name,
+                images: tempImages.creature,
+                category: document.getElementById('formCategory').value,
+                description: document.getElementById('formDescription').value,
+                diet: document.getElementById('formDiet').value,
+                level: document.getElementById('formLevel').value,
+                tamingFood: document.getElementById('formTamingFood').value,
+                tamingMethod: document.getElementById('formTamingMethod').value,
+                notes: document.getElementById('formNotes').value
+            };
+
+            creatures.push(creature);
+            saveData();
+            document.getElementById('creatureForm').reset();
+            tempImages.creature = [];
+            document.getElementById('creatureImageGallery').innerHTML = '';
+            toggleForm('creature');
+            renderCreatures();
+        }
+
+        // ===== BASES =====
+        function renderBases() {
+            const search = document.getElementById('searchBases').value.toLowerCase();
+            const filtered = bases.filter(b => b.name.toLowerCase().includes(search));
+
+            const grid = document.getElementById('basesGridContainer');
+            const empty = document.getElementById('emptyBasesMessage');
+
+            if (filtered.length === 0) {
+                grid.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            empty.style.display = 'none';
+
+            grid.innerHTML = filtered.map(b => `
+                <div class="card ${selectedBaseId === b.id ? 'selected' : ''}" onclick="selectBase(${b.id})">
+                    <div class="card-images-container">
+                        ${b.images && b.images.length > 0 ? 
+                            `<img src="${b.images[0]}" class="card-image">
+                             <div class="card-image-counter">📸 ${b.images.length}</div>` : 
+                            `<div class="card-image no-image" style="font-size: 100px; display: flex; align-items: center; justify-content: center;">📍</div>`
+                        }
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">${b.name}</div>
+                        <div class="card-category">${b.map}</div>
+                        <div class="card-desc">${b.difficulty}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectBase(id) {
+            const b = bases.find(x => x.id === id);
+            if (!b) return;
+            
+            selectedBaseId = id;
+            currentModal = 'base';
+            currentImages = b.images || [];
+            currentImageIndex = 0;
+            
+            showModalImage();
+            
+            document.getElementById('modalName').textContent = `📍 ${b.name}`;
+            document.getElementById('modalSubtitle').textContent = `${b.map} - ${b.difficulty}`;
+            
+            const body = document.getElementById('modalBody');
+            let html = '';
+            
+            if (b.description) {
+                html += `<div class="modal-field">
+                    <div class="modal-label">📝 Descripción</div>
+                    <div class="modal-value">${b.description}</div>
+                </div>`;
+            }
+            if (b.coordinates) {
+                html += `<div class="modal-field">
+                    <div class="modal-label">📍 Coordenadas</div>
+                    <div class="modal-value">${b.coordinates}</div>
+                </div>`;
+            }
+            if (b.advantages) {
+                html += `<div class="modal-field">
+                    <div class="modal-label">✅ Ventajas</div>
+                    <div class="modal-value">${b.advantages}</div>
+                </div>`;
+            }
+            if (b.disadvantages) {
+                html += `<div class="modal-field">
+                    <div class="modal-label">⚠️ Desventajas</div>
+                    <div class="modal-value">${b.disadvantages}</div>
+                </div>`;
+            }
+            
+            body.innerHTML = html;
+            renderGalleryNav();
+            document.getElementById('modal').classList.add('active');
+            renderBases();
+        }
+
+        function addBase(e) {
+            e.preventDefault();
+            const name = document.getElementById('formBaseName').value.trim();
+            if (!name) {
+                alert('Por favor ingresa un nombre');
+                return;
+            }
+
+            const base = {
+                id: Date.now(),
+                name: name,
+                images: tempImages.base,
+                map: document.getElementById('formBaseMap').value,
+                difficulty: document.getElementById('formBaseDifficulty').value,
+                description: document.getElementById('formBaseDescription').value,
+                coordinates: document.getElementById('formBaseCoordinates').value,
+                advantages: document.getElementById('formBaseAdvantages').value,
+                disadvantages: document.getElementById('formBaseDisadvantages').value
+            };
+
+            bases.push(base);
+            saveData();
+            document.getElementById('baseForm').reset();
+            tempImages.base = [];
+            document.getElementById('baseImageGallery').innerHTML = '';
+            toggleForm('base');
+            renderBases();
+        }
+
+        // ===== MAPAS =====
+        function renderMaps() {
+            const grid = document.getElementById('mapsGridContainer');
+            const empty = document.getElementById('emptyMapsMessage');
+
+            if (maps.length === 0) {
+                grid.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            empty.style.display = 'none';
+
+            grid.innerHTML = maps.map(m => `
+                <div class="card ${selectedMapId === m.id ? 'selected' : ''}" onclick="selectMap(${m.id})">
+                    <div class="card-images-container">
+                        ${m.images && m.images.length > 0 ? 
+                            `<img src="${m.images[0]}" class="card-image">
+                             <div class="card-image-counter">📸 ${m.images.length}</div>` : 
+                            `<div class="card-image no-image" style="font-size: 100px; display: flex; align-items: center; justify-content: center;">🗺️</div>`
+                        }
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">${m.name}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectMap(id) {
+            const m = maps.find(x => x.id === id);
+            if (!m) return;
+            
+            selectedMapId = id;
+            currentModal = 'map';
+            currentImages = m.images || [];
+            currentImageIndex = 0;
+            
+            showModalImage();
+            
+            document.getElementById('modalName').textContent = `🗺️ ${m.name}`;
+            document.getElementById('modalSubtitle').textContent = 'Información del Mapa';
+            
+            const body = document.getElementById('modalBody');
+            let html = '';
+            
+            if (m.description) {
+                html += `<div class="modal-field">
+                    <div class="modal-label">📝 Descripción</div>
+                    <div class="modal-value">${m.description}</div>
+                </div>`;
+            }
+            if (m.biomas) {
+                html += `<div class="modal-field">
+                    <div class="modal-label">🌍 Biomas</div>
+                    <div class="modal-value">${m.biomas}</div>
+                </div>`;
+            }
+            if (m.resources) {
+                html += `<div class="modal-field">
+                    <div class="modal-label">⛏️ Recursos</div>
+                    <div class="modal-value">${m.resources}</div>
+                </div>`;
+            }
+            
+            body.innerHTML = html;
+            renderGalleryNav();
+            document.getElementById('modal').classList.add('active');
+            renderMaps();
+        }
+
+        function addMap(e) {
+            e.preventDefault();
+            const name = document.getElementById('formMapName').value.trim();
+            if (!name) {
+                alert('Por favor ingresa un nombre');
+                return;
+            }
+
+            const map = {
+                id: Date.now(),
+                name: name,
+                images: tempImages.map,
+                description: document.getElementById('formMapDescription').value,
+                biomas: document.getElementById('formMapBiomas').value,
+                resources: document.getElementById('formMapResources').value
+            };
+
+            maps.push(map);
+            saveData();
+            document.getElementById('mapForm').reset();
+            tempImages.map = [];
+            document.getElementById('mapImageGallery').innerHTML = '';
+            toggleForm('map');
+            renderMaps();
+        }
+
+        // ===== GALERÍA DE IMÁGENES =====
+        function showModalImage() {
+            const modalImage = document.getElementById('modalImage');
+            if (currentImages && currentImages.length > 0) {
+                modalImage.src = currentImages[currentImageIndex];
+                modalImage.style.display = 'block';
+            } else {
+                modalImage.style.display = 'none';
+            }
+        }
+
+        function nextImage() {
+            if (currentImages.length === 0) return;
+            currentImageIndex = (currentImageIndex + 1) % currentImages.length;
+            showModalImage();
+            renderGalleryNav();
+        }
+
+        function prevImage() {
+            if (currentImages.length === 0) return;
+            currentImageIndex = (currentImageIndex - 1 + currentImages.length) % currentImages.length;
+            showModalImage();
+            renderGalleryNav();
+        }
+
+        function renderGalleryNav() {
+            const nav = document.getElementById('galleryNav');
+            if (!currentImages || currentImages.length <= 1) {
+                nav.style.display = 'none';
+                return;
+            }
+            nav.style.display = 'flex';
+            nav.innerHTML = currentImages.map((_, idx) => `
+                <div class="gallery-dot ${idx === currentImageIndex ? 'active' : ''}" onclick="goToImage(${idx})"></div>
+            `).join('');
+        }
+
+        function goToImage(idx) {
+            currentImageIndex = idx;
+            showModalImage();
+            renderGalleryNav();
+        }
+
+        // ===== GENERAL =====
+        function toggleForm(type) {
+            if (type === 'creature') {
+                const form = document.getElementById('formSection');
+                form.style.display = form.style.display === 'none' ? 'block' : 'none';
+            } else if (type === 'base') {
+                const form = document.getElementById('formSectionBases');
+                form.style.display = form.style.display === 'none' ? 'block' : 'none';
+            } else if (type === 'map') {
+                const form = document.getElementById('formSectionMaps');
+                form.style.display = form.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+            selectedCreatureId = null;
+            selectedBaseId = null;
+            selectedMapId = null;
+            currentModal = null;
+            currentImages = [];
+            renderCreatures();
+            renderBases();
+            renderMaps();
+        }
+
+        function deleteSelected() {
+            if (!currentModal) return;
+            if (!confirm('¿Estás seguro?')) return;
+
+            if (currentModal === 'creature') {
+                creatures = creatures.filter(c => c.id !== selectedCreatureId);
+            } else if (currentModal === 'base') {
+                bases = bases.filter(b => b.id !== selectedBaseId);
+            } else if (currentModal === 'map') {
+                maps = maps.filter(m => m.id !== selectedMapId);
+            }
+
+            saveData();
+            closeModal();
+        }
+
+        document.getElementById('searchInput').addEventListener('input', renderCreatures);
+        document.getElementById('searchBases').addEventListener('input', renderBases);
+
+        loadData();
+    </script>
+</body>
+</html>
